@@ -105,7 +105,7 @@ pipeline {
                 echo '========== Pipeline Execution Completed =========='
             }
             // Limpia el workspace eliminando archivos temporales
-            cleanWs()
+            // cleanWs()
         }
 
         // Se ejecuta SOLO si el build fue exitoso
