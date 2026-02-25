@@ -7,7 +7,7 @@ pipeline {
             // Imagen base: Node.js 20 en Alpine Linux (ligera y eficiente)
             image 'node:20-alpine'
             // Monta el socket de Docker para permitir comandos docker dentro del contenedor
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
+            // args '-v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
 
