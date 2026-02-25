@@ -87,6 +87,7 @@ pipeline {
                 }
                 sh '''
                     bun install -g serve
+                    export PATH=$PATH:/root/.bun/serve
                     serve -s dist -l 3000 &
                 '''
                 
