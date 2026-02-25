@@ -43,6 +43,7 @@ pipeline {
                 // Ejecuta comandos de shell en el contenedor
                 sh '''
                     npm install -g bun
+                    export PATH=$PATH:/root/.bun/bin
                     bun install
                 '''
             }
