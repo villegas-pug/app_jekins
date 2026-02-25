@@ -42,9 +42,7 @@ pipeline {
                 }
                 // Ejecuta comandos de shell en el contenedor
                 sh '''
-                    // Instala Bun globalmente (gestor de paquetes JavaScript rápido)
                     npm install -g bun
-                    // Instala todas las dependencias del proyecto
                     bun install
                 '''
             }
@@ -74,7 +72,6 @@ pipeline {
                 }
                 // Compila TypeScript y genera el build optimizado con Vite
                 sh '''
-                    // Compila tipos TypeScript y crea bundle de producción
                     bun run build
                 '''
             }
@@ -88,9 +85,7 @@ pipeline {
                     echo '========== Deploy build =========='
                 }
                 sh '''
-                    // Instala el paquete serve
                     bun install -g serve
-                    // Despliega el build en el puerto 3000
                     serve -s dist -l 3000 &
                 '''
                 
