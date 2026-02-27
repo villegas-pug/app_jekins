@@ -1,6 +1,6 @@
 pipeline {
 
-    agent none  // El pipeline no se ejecuta en ningún agente específico por defecto
+    agent any
 
     environment {
         PATH           = "/root/.bun/bin:${env.PATH}"
@@ -14,33 +14,41 @@ pipeline {
     stages {
 
         // ================== CI — corre dentro del contenedor node:20-alpine ==================
-        stage('[CI] - Install & Build') {
+        // stage('[CI] - Install & Build')
+
+
+        stage('Install') {
+
             agent {
                 docker {
                     image 'node:20-alpine'
                     reuseNode true
                 }
             }
-            stages {
-                stage('Install') {
-                    steps { 
-                        echo '================== [CI] Installing dependencies =================='
-                        sh '''
-                            npm install -g bun
-                            bun install
-                        '''
-                    }
-                }
-                stage('Build') {
-                    steps { 
-                        echo '================== [CI] Building application =================='
-                        sh 'bun run build' 
-                    } 
-                }
 
+            steps { 
+                echo '================== [CI] Installing dependencies =================='
+                sh '''
+                    npm install -g bun
+                    bun install
+                '''
+            }
+        }
+
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                }
             }
             
+            steps { 
+                echo '================== [CI] Building application =================='
+                sh 'bun run build' 
+            } 
         }
+
 
         stage('[CI] - Docker Build & Push') {
                     
