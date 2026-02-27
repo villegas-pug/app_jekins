@@ -3,13 +3,9 @@ const App = () => {
 
   return (
     <div style={{
-      margin: 0,
-      padding: 0,
+      width: '100vw',
       height: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'blueviolet'
+      backgroundColor: '#777'
     }}>
       <h1>¡Jenkins - App!</h1>
       <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facilis eius laboriosam accusantium ea unde perspiciatis ut, voluptatibus, amet numquam iusto corrupti. Cum error quasi perferendis ratione nisi debitis eligendi natus?</p>
