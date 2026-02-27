@@ -14,7 +14,7 @@ pipeline {
     stages {
 
         // ================== CI — corre dentro del contenedor node:20-alpine ==================
-        stage('CI') {
+        stage('[CI] - Install & Build') {
             agent {
                 docker {
                     image 'node:20-alpine'
@@ -38,33 +38,34 @@ pipeline {
                     } 
                 }
 
-                stage('Docker Build & Push') {
-                    
-                    steps {
-                        echo '================== [CI] Building and pushing Docker image =================='
-                        withCredentials([usernamePassword(
-                            credentialsId: 'dockerhub-credentials',
-                            usernameVariable: 'DOCKER_USER',
-                            passwordVariable: 'DOCKER_PASS'
-                        )]) {
-                            sh """
-                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                                docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
-                                echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                                docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                                docker push ${IMAGE_NAME}:latest
-                            """
-                        }
-                    }
-                }
             }
             
+        }
+
+        stage('[CI] - Docker Build & Push') {
+                    
+            steps {
+                echo '================== [CI] Building and pushing Docker image =================='
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh """
+                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                        docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                        docker push ${IMAGE_NAME}:latest
+                    """
+                }
+            }
         }
 
 
         // ====== CD — corre directamente en Jenkins, fuera de cualquier contenedor ======
 
-        stage('CD') {
+        stage('[CD] - Deploy to Server') {
             agent any  // ← corre en Jenkins directamente, no en docker
             steps {
                 echo '================== [CD] Deploying application =================='
