@@ -7,8 +7,8 @@ pipeline {
         APP_NAME       = 'jenkins-app'
         IMAGE_NAME     = "rovidev/${APP_NAME}"
         IMAGE_TAG      = "${BUILD_NUMBER}"
-        CONTAINER_PORT = '3000'
-        HOST_PORT      = '80'
+        CONTAINER_PORT = '80'
+        HOST_PORT      = '3000'
     }
 
     stages {
