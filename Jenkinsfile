@@ -1,6 +1,6 @@
 pipeline {
 
-    agent any
+    agent none  // El pipeline no se ejecuta en ningún agente específico por defecto
 
     environment {
         PATH           = "/root/.bun/bin:${env.PATH}"
