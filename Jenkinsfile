@@ -1,6 +1,6 @@
 pipeline {
 
-    agent none 
+    agent any 
 
     environment {
         PATH           = "/root/.bun/bin:${env.PATH}"
@@ -25,7 +25,10 @@ pipeline {
                 stage('Install') {
                     steps { 
                         echo '================== [CI] Installing dependencies =================='
-                        sh 'bun install' 
+                        sh '''
+                            npm install -g bun
+                            bun install
+                        '''
                     }
                 }
                 stage('Build') {
