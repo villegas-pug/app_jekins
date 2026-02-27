@@ -1,3 +1,3 @@
 FROM nginx:alpine
 COPY dist/ /usr/share/nginx/html/
-EXPOSE 81
+EXPOSE 80

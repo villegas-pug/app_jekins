@@ -1,6 +1,6 @@
 pipeline {
 
-    agent any 
+    agent any
 
     environment {
         PATH           = "/root/.bun/bin:${env.PATH}"
