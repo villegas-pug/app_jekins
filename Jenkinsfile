@@ -1,6 +1,6 @@
 pipeline {
 
-    agent any
+    agent none  // ← No se asigna un agente global, cada stage define su propio agente
 
     environment {
         PATH           = "/root/.bun/bin:${env.PATH}"
@@ -42,7 +42,7 @@ pipeline {
                     reuseNode true
                 }
             }
-            
+
             steps { 
                 echo '================== [CI] Building application =================='
                 sh 'bun run build' 
