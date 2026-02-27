@@ -1,41 +1,80 @@
 pipeline {
 
-    agent any
+    agent none 
 
     environment {
-        PATH = "$PATH:/root/.bun/bin"
+        PATH           = "/root/.bun/bin:${env.PATH}"
+        APP_NAME       = 'jenkins-app'
+        IMAGE_NAME     = "rovidev/${APP_NAME}"
+        IMAGE_TAG      = "${BUILD_NUMBER}"
+        CONTAINER_PORT = '3000'
+        HOST_PORT      = '3000'
     }
 
     stages {
 
-        stage('Setup & Build') {
+        // ================== CI — corre dentro del contenedor node:20-alpine ==================
+        stage('CI') {
             agent {
                 docker {
                     image 'node:20-alpine'
                     reuseNode true
                 }
             }
-            steps {
-                script {
-                    echo '========== Installing dependencies =========='
+            stages {
+                stage('Install') {
+                    steps { 
+                        echo '================== [CI] Installing dependencies =================='
+                        sh 'bun install' 
+                    }
                 }
-                sh '''
-                    npm install -g bun
-                    bun install
-                    bun run build
-                '''
+                stage('Build') {
+                    steps { 
+                        echo '================== [CI] Building application =================='
+                        sh 'bun run build' 
+                    } 
+                }
+
+                stage('Docker Build & Push') {
+                    
+                    steps {
+                        echo '================== [CI] Building and pushing Docker image =================='
+                        withCredentials([usernamePassword(
+                            credentialsId: 'dockerhub-credentials',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )]) {
+                            sh """
+                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                                docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                                echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                                docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                                docker push ${IMAGE_NAME}:latest
+                            """
+                        }
+                    }
+                }
             }
+            
         }
 
-        stage('Deploy') {
+
+        // ====== CD — corre directamente en Jenkins, fuera de cualquier contenedor ======
+
+        stage('CD') {
+            agent any  // ← corre en Jenkins directamente, no en docker
             steps {
-                script {
-                    echo '========== Deploy build =========='
-                }
-                sh '''
-                    bun install -g serve
-                    serve -s dist -l 3000 &
-                '''
+                echo '================== [CD] Deploying application =================='
+                sh """
+                    docker stop ${APP_NAME} || true
+                    docker rm   ${APP_NAME} || true
+
+                    docker run -d \
+                        --name ${APP_NAME} \
+                        --restart unless-stopped \
+                        -p ${HOST_PORT}:${CONTAINER_PORT} \
+                        ${IMAGE_NAME}:latest
+                """
             }
         }
 
@@ -43,19 +82,13 @@ pipeline {
 
     post {
         always {
-            script {
-                echo '========== Pipeline Execution Completed =========='
-            }
+            echo '================== Pipeline Execution Completed =================='
         }
         success {
-            script {
-                echo '========== Build Successful =========='
-            }
+            echo "================== Build #${BUILD_NUMBER} deployed successfully =================="
         }
         failure {
-            script {
-                echo '========== Build Failed =========='
-            }
+            echo "================== Build #${BUILD_NUMBER} failed =================="
         }
     }
 }
